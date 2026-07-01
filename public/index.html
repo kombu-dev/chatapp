@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>インカム</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <h1>インカム</h1>
+
+  <div class="join-form">
+    <input type="text" id="room" placeholder="ルーム名を入力" autocomplete="off">
+    <button id="joinBtn">参加</button>
+  </div>
+
+  <p id="status" class="status"></p>
+
+  <button id="muteBtn" class="mute-btn" disabled>ミュート</button>
+
+  <h2>参加者</h2>
+  <ul id="memberList"></ul>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

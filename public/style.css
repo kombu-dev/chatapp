@@ -1,0 +1,77 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  background: #111827;
+  color: #f3f4f6;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 1.6rem;
+  margin-bottom: 24px;
+}
+
+.join-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.join-form input {
+  flex: 1;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #1f2937;
+  color: #f3f4f6;
+}
+
+button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #374151;
+  cursor: not-allowed;
+}
+
+.mute-btn {
+  width: 100%;
+  margin-bottom: 24px;
+  background: #dc2626;
+}
+
+.status {
+  text-align: center;
+  color: #9ca3af;
+  min-height: 1.2em;
+}
+
+#memberList {
+  list-style: none;
+  padding: 0;
+}
+
+#memberList li {
+  background: #1f2937;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
