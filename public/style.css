@@ -1,77 +1,177 @@
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
-  background: #111827;
-  color: #f3f4f6;
+  background: #0f172a;
+  color: #f1f5f9;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
+.hidden { display: none !important; }
+
+/* ── Join screen ── */
 .container {
-  max-width: 480px;
+  max-width: 420px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 48px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 h1 {
-  text-align: center;
-  font-size: 1.6rem;
-  margin-bottom: 24px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 
 .join-form {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
+  width: 100%;
 }
 
 .join-form input {
   flex: 1;
-  padding: 12px;
+  padding: 14px 16px;
   font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid #374151;
-  background: #1f2937;
-  color: #f3f4f6;
+  border-radius: 12px;
+  border: 1.5px solid #334155;
+  background: #1e293b;
+  color: #f1f5f9;
+  outline: none;
 }
 
-button {
-  padding: 12px 20px;
+.join-form input:focus { border-color: #3b82f6; }
+
+.join-form button {
+  padding: 14px 22px;
   font-size: 1rem;
+  font-weight: 600;
   border: none;
-  border-radius: 8px;
-  background: #2563eb;
+  border-radius: 12px;
+  background: #3b82f6;
   color: white;
   cursor: pointer;
 }
 
-button:disabled {
-  background: #374151;
-  cursor: not-allowed;
-}
-
-.mute-btn {
-  width: 100%;
-  margin-bottom: 24px;
-  background: #dc2626;
-}
-
 .status {
-  text-align: center;
-  color: #9ca3af;
+  color: #94a3b8;
+  font-size: 0.9rem;
   min-height: 1.2em;
+  text-align: center;
 }
 
+/* ── Talk screen ── */
+.talk-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 24px 20px 40px;
+  gap: 16px;
+}
+
+.room-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Member list */
 #memberList {
   list-style: none;
-  padding: 0;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 #memberList li {
-  background: #1f2937;
-  padding: 10px 14px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  background: #1e293b;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  border: 1.5px solid transparent;
+  transition: border-color 0.15s, background 0.15s;
 }
+
+#memberList li.talking {
+  border-color: #22c55e;
+  background: #14532d33;
+}
+
+.member-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #334155;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+li.talking .member-dot { background: #22c55e; }
+
+.member-name { flex: 1; }
+
+.member-state {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+li.talking .member-state { color: #22c55e; }
+
+/* Self row */
+#memberList li.self { background: #1e3a5f; }
+#memberList li.self.talking { border-color: #22c55e; background: #14532d66; }
+
+/* PTT button */
+.ptt-wrap {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ptt-hint {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+.ptt-hint.sub { font-size: 0.72rem; }
+
+.ptt-btn {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 3px solid #334155;
+  background: #1e293b;
+  color: #f1f5f9;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.1s, border-color 0.1s, transform 0.1s;
+  touch-action: none;
+}
+
+.ptt-btn:active,
+.ptt-btn.active {
+  background: #166534;
+  border-color: #22c55e;
+  transform: scale(0.95);
+}
+
+.ptt-icon { font-size: 2.4rem; line-height: 1; }
+.ptt-text { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; color: #94a3b8; }
+.ptt-btn.active .ptt-text { color: #86efac; }

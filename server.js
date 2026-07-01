@@ -33,6 +33,14 @@ io.on('connection', (socket) => {
     io.to(to).emit('signal', { from: socket.id, data });
   });
 
+  socket.on('talking', () => {
+    socket.to(currentRoom).emit('peer-talking', socket.id);
+  });
+
+  socket.on('silent', () => {
+    socket.to(currentRoom).emit('peer-silent', socket.id);
+  });
+
   socket.on('disconnect', () => {
     if (currentRoom && rooms.has(currentRoom)) {
       rooms.get(currentRoom).delete(socket.id);
