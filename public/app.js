@@ -22,6 +22,11 @@ joinBtn.addEventListener('click', async () => {
   const roomId = roomInput.value.trim();
   if (!roomId) return;
 
+  // Started directly inside the click handler so it inherits the user
+  // gesture — required for autoplay, and it's what keeps a Media Session
+  // alive (needed for the earphone button to reach us with the screen off).
+  startKeepAliveAudio();
+
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch {
@@ -51,28 +56,68 @@ pttBtn.addEventListener('mousedown',   () => startTalking());
 pttBtn.addEventListener('mouseup',     () => stopTalking());
 pttBtn.addEventListener('mouseleave',  () => { if (isTalking) stopTalking(); });
 
-// ── PTT: volume UP key (Android Chrome) ─────────────────────────────────────
+// ── Keep-alive audio ─────────────────────────────────────────────────────────
+// A silent loop is not reliably treated as "playing" by mobile browsers, so
+// the Media Session (and with it, the earphone button) can get dropped once
+// the screen locks. A very quiet real tone keeps the session alive.
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'AudioVolumeUp' || e.keyCode === 175) {
-    e.preventDefault();
-    startTalking();
-  }
-});
+function buildQuietLoopUrl() {
+  const sampleRate = 8000;
+  const seconds = 2;
+  const numSamples = sampleRate * seconds;
+  const amplitude = 0.02;
+  const freq = 200;
 
-document.addEventListener('keyup', (e) => {
-  if (e.key === 'AudioVolumeUp' || e.keyCode === 175) {
-    e.preventDefault();
-    stopTalking();
+  const buffer = new ArrayBuffer(44 + numSamples * 2);
+  const view = new DataView(buffer);
+  const writeStr = (offset, str) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+
+  writeStr(0, 'RIFF');
+  view.setUint32(4, 36 + numSamples * 2, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeStr(36, 'data');
+  view.setUint32(40, numSamples * 2, true);
+
+  for (let i = 0; i < numSamples; i++) {
+    const s = Math.sin((2 * Math.PI * freq * i) / sampleRate) * amplitude;
+    view.setInt16(44 + i * 2, s * 32767, true);
   }
-});
+
+  return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
+}
+
+function startKeepAliveAudio() {
+  const audio = document.createElement('audio');
+  audio.src = buildQuietLoopUrl();
+  audio.loop = true;
+  audio.playsInline = true;
+  document.body.appendChild(audio);
+  audio.play().catch(() => {});
+}
 
 // ── PTT: earphone button via Media Session (toggle mode) ────────────────────
 
 function setupMediaSession() {
   if (!('mediaSession' in navigator)) return;
-  navigator.mediaSession.setActionHandler('play',  () => { isTalking ? stopTalking() : startTalking(); });
-  navigator.mediaSession.setActionHandler('pause', () => { isTalking ? stopTalking() : startTalking(); });
+  navigator.mediaSession.metadata = new MediaMetadata({ title: 'インカム通話中' });
+  navigator.mediaSession.playbackState = 'playing';
+
+  const toggle = () => (isTalking ? stopTalking() : startTalking());
+  for (const action of ['play', 'pause', 'stop']) {
+    try {
+      navigator.mediaSession.setActionHandler(action, toggle);
+    } catch {}
+  }
 }
 
 // ── Talking state ────────────────────────────────────────────────────────────
