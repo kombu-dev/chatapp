@@ -56,6 +56,28 @@ pttBtn.addEventListener('mousedown',   () => startTalking());
 pttBtn.addEventListener('mouseup',     () => stopTalking());
 pttBtn.addEventListener('mouseleave',  () => { if (isTalking) stopTalking(); });
 
+// ── PTT: double-tap anywhere on the talk screen (toggle mode) ───────────────
+// A fallback for earphones with no hardware button, since a touch double-tap
+// is far more reliable than hoping the earbuds forward a play/pause signal.
+
+let lastTapAt = 0;
+talkScreen.addEventListener('touchend', (e) => {
+  if (e.target.closest('#pttBtn')) return;
+  const now = Date.now();
+  if (now - lastTapAt < 350) {
+    e.preventDefault();
+    toggleTalking();
+    lastTapAt = 0;
+  } else {
+    lastTapAt = now;
+  }
+}, { passive: false });
+
+talkScreen.addEventListener('dblclick', (e) => {
+  if (e.target.closest('#pttBtn')) return;
+  toggleTalking();
+});
+
 // ── Keep-alive audio ─────────────────────────────────────────────────────────
 // A silent loop is not reliably treated as "playing" by mobile browsers, so
 // the Media Session (and with it, the earphone button) can get dropped once
@@ -112,15 +134,22 @@ function setupMediaSession() {
   navigator.mediaSession.metadata = new MediaMetadata({ title: 'インカム通話中' });
   navigator.mediaSession.playbackState = 'playing';
 
-  const toggle = () => (isTalking ? stopTalking() : startTalking());
-  for (const action of ['play', 'pause', 'stop']) {
+  // Different earphones map their gesture to different transport commands —
+  // bind everything plausible to the same toggle so whichever one the
+  // earbuds actually send still works.
+  const actions = ['play', 'pause', 'stop', 'previoustrack', 'nexttrack', 'seekbackward', 'seekforward'];
+  for (const action of actions) {
     try {
-      navigator.mediaSession.setActionHandler(action, toggle);
+      navigator.mediaSession.setActionHandler(action, toggleTalking);
     } catch {}
   }
 }
 
 // ── Talking state ────────────────────────────────────────────────────────────
+
+function toggleTalking() {
+  isTalking ? stopTalking() : startTalking();
+}
 
 function startTalking() {
   if (!localStream || isTalking) return;
